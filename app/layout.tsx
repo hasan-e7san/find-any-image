@@ -1,12 +1,12 @@
 // app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
-import Script from "next/script";
+import GoogleAdSenseScript from "@/components/GoogleAdSenseScript";
 import Navbar from "@/components/Navbar";
 import SideRailAd from "@/components/SideRailAd";
 import Providers from "@/components/Providers";
 import SiteFooter from "@/components/SiteFooter";
-import { GOOGLE_ADSENSE_CLIENT, getGoogleAdSenseScriptUrl } from "@/lib/ads";
+import { getAdsConfig } from "@/lib/ads";
 import { defaultLocale, getDirection, getTranslations, isLocale, LOCALE_COOKIE_NAME, type Locale } from "@/lib/i18n";
 import { buildHomeMetadata } from "@/lib/seo";
 import "./globals.css";
@@ -36,25 +36,19 @@ export default async function RootLayout({
 }>) {
   const initialLocale = await getInitialLocale();
   const dir = getDirection(initialLocale);
+  const adsConfig = getAdsConfig();
 
   return (
     <html lang={initialLocale} dir={dir} suppressHydrationWarning>
       <body>
-        {GOOGLE_ADSENSE_CLIENT ? (
-          <Script
-            id="google-adsense"
-            src={getGoogleAdSenseScriptUrl()}
-            strategy="afterInteractive"
-            crossOrigin="anonymous"
-          />
-        ) : null}
-        <Providers initialLocale={initialLocale}>
+        <Providers initialLocale={initialLocale} adsConfig={adsConfig}>
+          {adsConfig.client ? <GoogleAdSenseScript /> : null}
           <div className="flex min-h-screen flex-col bg-white text-gray-900">
             <Navbar />
             <div className="mx-auto flex w-full max-w-[1700px] flex-1 items-start gap-6 px-4 2xl:px-6">
-              <SideRailAd side="left" />
+              <SideRailAd side="left" slot={adsConfig.leftRailSlot} />
               <main className="min-w-0 flex-1">{children}</main>
-              <SideRailAd side="right" />
+              <SideRailAd side="right" slot={adsConfig.rightRailSlot} />
             </div>
             <SiteFooter />
           </div>

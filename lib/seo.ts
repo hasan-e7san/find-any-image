@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GOOGLE_ADSENSE_ACCOUNT } from "./ads";
+import { getGoogleAdSenseAccount } from "./ads";
 import {
   DEFAULT_OG_IMAGE_ALT,
   getAbsoluteUrl,
@@ -52,7 +52,7 @@ export function buildPageMetadata({
       telephone: false,
     },
     other: {
-      "google-adsense-account": GOOGLE_ADSENSE_ACCOUNT,
+      "google-adsense-account": getGoogleAdSenseAccount(),
     },
     robots: noIndex
       ? {

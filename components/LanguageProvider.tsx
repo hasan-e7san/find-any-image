@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useTransition } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+} from "react";
 import {
   defaultLocale,
   getDirection,
@@ -45,6 +52,24 @@ function readPersistedLocale() {
   return null;
 }
 
+function subscribeToLocale(onStoreChange: () => void) {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key === LOCALE_STORAGE_KEY) {
+      onStoreChange();
+    }
+  };
+
+  window.addEventListener("storage", handleStorage);
+
+  return () => {
+    window.removeEventListener("storage", handleStorage);
+  };
+}
+
 export function LanguageProvider({
   children,
   initialLocale = defaultLocale,
@@ -52,8 +77,14 @@ export function LanguageProvider({
   children: React.ReactNode;
   initialLocale?: Locale;
 }) {
-  const [locale, setLocaleState] = useState<Locale>(() => readPersistedLocale() ?? initialLocale);
+  const persistedLocale = useSyncExternalStore(
+    subscribeToLocale,
+    () => readPersistedLocale() ?? initialLocale,
+    () => initialLocale,
+  );
+  const [localeOverride, setLocaleOverride] = useState<Locale | null>(null);
   const [isPending, startTransition] = useTransition();
+  const locale = localeOverride ?? persistedLocale;
 
   useEffect(() => {
     const dir = getDirection(locale);
@@ -68,7 +99,7 @@ export function LanguageProvider({
 
   const setLocale = (nextLocale: Locale) => {
     startTransition(() => {
-      setLocaleState(nextLocale);
+      setLocaleOverride(nextLocale);
     });
   };
 

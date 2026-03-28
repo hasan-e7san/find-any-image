@@ -5,11 +5,11 @@ import React, { Suspense, useEffect, useEffectEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import AdUnit from "@/components/AdUnit";
+import { useAdsConfig } from "@/components/AdsConfigProvider";
 import ImageGrid from "@/components/ImageGrid";
 import ImageModal from "@/components/ImageModal";
 import { useI18n } from "@/components/LanguageProvider";
 import { formatNumber } from "@/lib/i18n";
-import { GOOGLE_ADSENSE_SEARCH_SLOT } from "@/lib/ads";
 import { ImageResult } from "@/lib/search";
 
 type FavoriteRecord = {
@@ -33,6 +33,7 @@ function SearchContent() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const { data: session } = useSession();
   const { locale, t } = useI18n();
+  const { searchSlot } = useAdsConfig();
 
   const fetchResults = useEffectEvent(async () => {
     setLoading(true);
@@ -196,7 +197,7 @@ function SearchContent() {
       <div className="mt-16 w-full flex justify-center">
         <div className="max-w-4xl w-full">
           <AdUnit
-            slot={GOOGLE_ADSENSE_SEARCH_SLOT}
+            slot={searchSlot}
             fallbackTitle={t.searchPage.adUnit}
           />
         </div>

@@ -1,18 +1,11 @@
 import AdUnit from "@/components/AdUnit";
-import {
-  GOOGLE_ADSENSE_LEFT_RAIL_SLOT,
-  GOOGLE_ADSENSE_RIGHT_RAIL_SLOT,
-} from "@/lib/ads";
 
 type SideRailAdProps = {
   side: "left" | "right";
+  slot: string;
 };
 
-export default function SideRailAd({ side }: SideRailAdProps) {
-  const slot =
-    side === "left"
-      ? GOOGLE_ADSENSE_LEFT_RAIL_SLOT
-      : GOOGLE_ADSENSE_RIGHT_RAIL_SLOT;
+export default function SideRailAd({ side, slot }: SideRailAdProps) {
   const fallbackTitle =
     side === "left" ? "Left ad rail" : "Right ad rail";
 

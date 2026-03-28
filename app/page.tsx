@@ -3,12 +3,13 @@
 
 import AdUnit from "@/components/AdUnit";
 import SearchInput from "@/components/SearchInput";
-import { GOOGLE_ADSENSE_HOME_SLOT } from "@/lib/ads";
+import { useAdsConfig } from "@/components/AdsConfigProvider";
 import { Search, Shield, Heart } from "lucide-react";
 import { useI18n } from "@/components/LanguageProvider";
 
 export default function Home() {
   const { t } = useI18n();
+  const { homeSlot } = useAdsConfig();
 
   return (
     <div className="flex flex-col items-center">
@@ -32,7 +33,7 @@ export default function Home() {
       <section className="w-full py-10 bg-gray-50 flex justify-center border-b border-gray-100">
         <div className="max-w-4xl w-full px-4">
           <AdUnit
-            slot={GOOGLE_ADSENSE_HOME_SLOT}
+            slot={homeSlot}
             fallbackTitle={t.home.adsPlaceholder}
             fallbackHint={t.home.adsHint}
           />

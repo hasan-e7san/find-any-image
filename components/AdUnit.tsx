@@ -2,8 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import clsx from "clsx";
+import { useAdsConfig } from "@/components/AdsConfigProvider";
 import {
-  GOOGLE_ADSENSE_CLIENT,
+  GOOGLE_ADSENSE_READY_EVENT,
   isGoogleAdSenseEnabled,
 } from "@/lib/ads";
 
@@ -26,9 +27,11 @@ export default function AdUnit({
   fallbackHint,
   fallbackTitle,
 }: AdUnitProps) {
+  const { client } = useAdsConfig();
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const adRef = useRef<HTMLModElement | null>(null);
   const requestedRef = useRef(false);
-  const adSenseEnabled = isGoogleAdSenseEnabled(slot);
+  const adSenseEnabled = isGoogleAdSenseEnabled(client, slot);
 
   useEffect(() => {
     if (!adSenseEnabled || requestedRef.current) {
@@ -36,18 +39,66 @@ export default function AdUnit({
     }
 
     const adElement = adRef.current;
-    if (!adElement) {
+    const containerElement = containerRef.current;
+    if (!adElement || !containerElement) {
       return;
     }
 
-    try {
-      window.adsbygoogle = window.adsbygoogle || [];
-      window.adsbygoogle.push({});
-      requestedRef.current = true;
-    } catch (error) {
-      console.error("Failed to initialize Google AdSense ad unit.", error);
-    }
-  }, [adSenseEnabled]);
+    let animationFrameId: number | null = null;
+    const resizeObserver = new ResizeObserver(() => {
+      scheduleRequest();
+    });
+
+    const requestAd = () => {
+      if (requestedRef.current) {
+        return;
+      }
+
+      const { width } = containerElement.getBoundingClientRect();
+      const computedStyle = window.getComputedStyle(containerElement);
+      const isVisible =
+        computedStyle.display !== "none" &&
+        computedStyle.visibility !== "hidden" &&
+        width >= 120;
+
+      if (!isVisible) {
+        return;
+      }
+
+      try {
+        window.adsbygoogle = window.adsbygoogle || [];
+        window.adsbygoogle.push({});
+        requestedRef.current = true;
+        resizeObserver.disconnect();
+      } catch (error) {
+        console.error("Failed to initialize Google AdSense ad unit.", error);
+      }
+    };
+
+    const scheduleRequest = () => {
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+
+      animationFrameId = window.requestAnimationFrame(() => {
+        requestAd();
+      });
+    };
+
+    resizeObserver.observe(containerElement);
+    window.addEventListener(GOOGLE_ADSENSE_READY_EVENT, scheduleRequest);
+    window.addEventListener("load", scheduleRequest);
+    scheduleRequest();
+
+    return () => {
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+      resizeObserver.disconnect();
+      window.removeEventListener(GOOGLE_ADSENSE_READY_EVENT, scheduleRequest);
+      window.removeEventListener("load", scheduleRequest);
+    };
+  }, [adSenseEnabled, slot]);
 
   if (!adSenseEnabled) {
     if (process.env.NODE_ENV === "production") {
@@ -69,6 +120,7 @@ export default function AdUnit({
 
   return (
     <div
+      ref={containerRef}
       className={clsx(
         "min-h-[120px] overflow-hidden rounded-lg border border-gray-200 bg-white/80",
         className,
@@ -78,7 +130,7 @@ export default function AdUnit({
         ref={adRef}
         className="adsbygoogle block"
         style={{ display: "block" }}
-        data-ad-client={GOOGLE_ADSENSE_CLIENT}
+        data-ad-client={client}
         data-ad-format="auto"
         data-ad-slot={slot}
         data-full-width-responsive="true"
