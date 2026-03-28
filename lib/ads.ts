@@ -2,13 +2,15 @@ function readPublicEnv(name: string) {
   return process.env[name]?.trim() ?? "";
 }
 
+const DEFAULT_GOOGLE_ADSENSE_CLIENT = "ca-pub-4305704904656915";
+
 export const GOOGLE_ADSENSE_ACCOUNT =
   readPublicEnv("NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT") ||
-  "ca-pub-4305704904656915";
+  DEFAULT_GOOGLE_ADSENSE_CLIENT;
 
-export const GOOGLE_ADSENSE_CLIENT = readPublicEnv(
-  "NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT",
-);
+export const GOOGLE_ADSENSE_CLIENT =
+  readPublicEnv("NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT") ||
+  DEFAULT_GOOGLE_ADSENSE_CLIENT;
 
 export const GOOGLE_ADSENSE_HOME_SLOT = readPublicEnv(
   "NEXT_PUBLIC_GOOGLE_ADSENSE_HOME_SLOT",
@@ -16,6 +18,14 @@ export const GOOGLE_ADSENSE_HOME_SLOT = readPublicEnv(
 
 export const GOOGLE_ADSENSE_SEARCH_SLOT = readPublicEnv(
   "NEXT_PUBLIC_GOOGLE_ADSENSE_SEARCH_SLOT",
+);
+
+export const GOOGLE_ADSENSE_LEFT_RAIL_SLOT = readPublicEnv(
+  "NEXT_PUBLIC_GOOGLE_ADSENSE_LEFT_RAIL_SLOT",
+);
+
+export const GOOGLE_ADSENSE_RIGHT_RAIL_SLOT = readPublicEnv(
+  "NEXT_PUBLIC_GOOGLE_ADSENSE_RIGHT_RAIL_SLOT",
 );
 
 export function isGoogleAdSenseEnabled(slot?: string) {

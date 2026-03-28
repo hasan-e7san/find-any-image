@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import Script from "next/script";
 import Navbar from "@/components/Navbar";
+import SideRailAd from "@/components/SideRailAd";
 import Providers from "@/components/Providers";
 import SiteFooter from "@/components/SiteFooter";
 import { GOOGLE_ADSENSE_CLIENT, getGoogleAdSenseScriptUrl } from "@/lib/ads";
@@ -50,7 +51,11 @@ export default async function RootLayout({
         <Providers initialLocale={initialLocale}>
           <div className="flex min-h-screen flex-col bg-white text-gray-900">
             <Navbar />
-            <main className="flex-grow">{children}</main>
+            <div className="mx-auto flex w-full max-w-[1700px] flex-1 items-start gap-6 px-4 2xl:px-6">
+              <SideRailAd side="left" />
+              <main className="min-w-0 flex-1">{children}</main>
+              <SideRailAd side="right" />
+            </div>
             <SiteFooter />
           </div>
         </Providers>
