@@ -9,7 +9,6 @@ import { getAdsConfig } from "@/lib/ads";
 import { defaultLocale, getDirection, getTranslations, isLocale, LOCALE_COOKIE_NAME, type Locale } from "@/lib/i18n";
 import { buildHomeMetadata } from "@/lib/seo";
 import "./globals.css";
-import Script from "next/script";
 
 async function getInitialLocale(): Promise<Locale> {
   const cookieStore = await cookies();
@@ -41,8 +40,11 @@ export default async function RootLayout({
   return (
     <html lang={initialLocale} dir={dir} suppressHydrationWarning>
       <head>
-        <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4305704904656915"
-          crossOrigin="anonymous"></Script>
+         <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXX"
+          crossOrigin="anonymous"
+        ></script>
       </head>
       <body>
         <Providers initialLocale={initialLocale} adsConfig={adsConfig}>
