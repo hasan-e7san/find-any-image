@@ -39,13 +39,6 @@ export default async function RootLayout({
 
   return (
     <html lang={initialLocale} dir={dir} suppressHydrationWarning>
-      <head>
-         <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXX"
-          crossOrigin="anonymous"
-        ></script>
-      </head>
       <body>
         <Providers initialLocale={initialLocale} adsConfig={adsConfig}>
           {adsConfig.client ? <GoogleAdSenseScript /> : null}

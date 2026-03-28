@@ -75,8 +75,6 @@ const translations = {
       heroAccent: "Find Any Image",
       heroDescription:
         "Search millions of high-quality images from the best sources across the web. Save your favorites and access them anywhere.",
-      adsPlaceholder: "Google Ads Placeholder",
-      adsHint: "(Add your Google Ads script here)",
       fastSearchTitle: "Fast Search",
       fastSearchDescription:
         "Get high-quality results in milliseconds. We use top-tier APIs to ensure you find exactly what you need.",
@@ -96,7 +94,6 @@ const translations = {
       pageStatus: (page: string, total: string) => `Page ${page} of ${total}`,
       previousPage: "Previous",
       nextPage: "Next",
-      adUnit: "Google Ad Unit (Responsive)",
       loading: "Loading search...",
     },
     imageGrid: {
@@ -204,8 +201,6 @@ const translations = {
       heroAccent: "تجد أي صورة",
       heroDescription:
         "ابحث في ملايين الصور عالية الجودة من أفضل المصادر على الويب. احفظ مفضلتك وارجع إليها في أي وقت.",
-      adsPlaceholder: "مساحة إعلانية من Google",
-      adsHint: "(أضف شيفرة Google Ads هنا)",
       fastSearchTitle: "بحث سريع",
       fastSearchDescription:
         "احصل على نتائج عالية الجودة خلال لحظات. نستخدم أفضل الواجهات البرمجية لتصل إلى الصورة التي تريدها بسرعة.",
@@ -225,7 +220,6 @@ const translations = {
       pageStatus: (page: string, total: string) => `الصفحة ${page} من ${total}`,
       previousPage: "السابق",
       nextPage: "التالي",
-      adUnit: "وحدة إعلانية من Google (متجاوبة)",
       loading: "جارٍ تحميل نتائج البحث...",
     },
     imageGrid: {
