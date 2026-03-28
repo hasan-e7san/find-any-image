@@ -7,6 +7,12 @@ import {
   getGoogleAdSenseScriptUrl,
 } from "@/lib/ads";
 
+declare global {
+  interface Window {
+    googleAdSenseScriptLoaded?: boolean;
+  }
+}
+
 function dispatchReadyEvent() {
   window.dispatchEvent(new Event(GOOGLE_ADSENSE_READY_EVENT));
 }
@@ -24,15 +30,21 @@ export default function GoogleAdSenseScript() {
       `script[src="${scriptUrl}"]`,
     );
 
+    const markScriptAsReady = (script: HTMLScriptElement) => {
+      script.dataset.loaded = "true";
+      window.googleAdSenseScriptLoaded = true;
+      dispatchReadyEvent();
+    };
+
     const handleLoad = () => {
       if (existingScript) {
-        existingScript.dataset.loaded = "true";
+        markScriptAsReady(existingScript);
       }
-      dispatchReadyEvent();
     };
 
     if (existingScript) {
       if (existingScript.dataset.loaded === "true") {
+        window.googleAdSenseScriptLoaded = true;
         dispatchReadyEvent();
         return;
       }
@@ -51,8 +63,7 @@ export default function GoogleAdSenseScript() {
     script.dataset.googleAdSenseScript = "true";
 
     const handleScriptLoad = () => {
-      script.dataset.loaded = "true";
-      dispatchReadyEvent();
+      markScriptAsReady(script);
     };
 
     script.addEventListener("load", handleScriptLoad, { once: true });

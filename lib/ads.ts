@@ -7,10 +7,6 @@ export const GOOGLE_ADSENSE_READY_EVENT = "google-adsense-ready";
 
 export type AdsConfig = {
   client: string;
-  homeSlot: string;
-  searchSlot: string;
-  leftRailSlot: string;
-  rightRailSlot: string;
 };
 
 export function getAdsConfig(): AdsConfig {
@@ -18,10 +14,6 @@ export function getAdsConfig(): AdsConfig {
     client:
       readPublicEnv("NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT") ||
       DEFAULT_GOOGLE_ADSENSE_CLIENT,
-    homeSlot: readPublicEnv("NEXT_PUBLIC_GOOGLE_ADSENSE_HOME_SLOT"),
-    searchSlot: readPublicEnv("NEXT_PUBLIC_GOOGLE_ADSENSE_SEARCH_SLOT"),
-    leftRailSlot: readPublicEnv("NEXT_PUBLIC_GOOGLE_ADSENSE_LEFT_RAIL_SLOT"),
-    rightRailSlot: readPublicEnv("NEXT_PUBLIC_GOOGLE_ADSENSE_RIGHT_RAIL_SLOT"),
   };
 }
 

@@ -4,8 +4,6 @@
 import React, { Suspense, useEffect, useEffectEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import AdUnit from "@/components/AdUnit";
-import { useAdsConfig } from "@/components/AdsConfigProvider";
 import ImageGrid from "@/components/ImageGrid";
 import ImageModal from "@/components/ImageModal";
 import { useI18n } from "@/components/LanguageProvider";
@@ -33,7 +31,6 @@ function SearchContent() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const { data: session } = useSession();
   const { locale, t } = useI18n();
-  const { searchSlot } = useAdsConfig();
 
   const fetchResults = useEffectEvent(async () => {
     setLoading(true);
@@ -192,16 +189,6 @@ function SearchContent() {
           </button>
         </div>
       ) : null}
-
-      {/* Results Ads */}
-      <div className="mt-16 w-full flex justify-center">
-        <div className="max-w-4xl w-full">
-          <AdUnit
-            slot={searchSlot}
-            fallbackTitle={t.searchPage.adUnit}
-          />
-        </div>
-      </div>
     </div>
   );
 }

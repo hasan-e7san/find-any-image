@@ -8,7 +8,7 @@ A powerful image search website built with Next.js, TypeScript, Tailwind CSS, Ne
 - **Favorites:** Save images to your account for later viewing.
 - **Search History:** Automatically tracks your recent searches when logged in.
 - **Responsive Design:** Optimized for mobile and desktop.
-- **Google AdSense:** Responsive ad slots on the homepage, search results page, and optional left/right desktop side rails.
+- **Google AdSense:** Site-wide Auto Ads with a single publisher ID.
 
 ## Tech Stack
 - **Framework:** Next.js (App Router)
@@ -34,13 +34,9 @@ A powerful image search website built with Next.js, TypeScript, Tailwind CSS, Ne
     PIXABAY_API_KEY="your-pixabay-api-key"
     MYMEMORY_TRANSLATE_EMAIL="you@example.com"
     NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT="ca-pub-1234567890123456"
-    NEXT_PUBLIC_GOOGLE_ADSENSE_HOME_SLOT="1234567890"
-    NEXT_PUBLIC_GOOGLE_ADSENSE_SEARCH_SLOT="0987654321"
-    NEXT_PUBLIC_GOOGLE_ADSENSE_LEFT_RAIL_SLOT="1122334455"
-    NEXT_PUBLIC_GOOGLE_ADSENSE_RIGHT_RAIL_SLOT="5544332211"
     ```
     *Note: You can get a free Pixabay API key at [https://pixabay.com/api/docs/](https://pixabay.com/api/docs/).*
-    *Note: Google AdSense gives you the publisher ID (`ca-pub-...`) and ad slot IDs inside your AdSense account when you create ad units.*
+    *Note: With Google AdSense Auto Ads enabled, you only need the publisher ID (`ca-pub-...`) in your environment variables.*
 
 4.  **Setup Database:**
     ```bash

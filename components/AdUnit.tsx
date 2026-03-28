@@ -8,11 +8,22 @@ import {
   isGoogleAdSenseEnabled,
 } from "@/lib/ads";
 
+type AdsByGoogleQueue =
+  | Array<Record<string, never>>
+  | {
+      push: (...values: Array<Record<string, never>>) => unknown;
+    };
+
 declare global {
   interface Window {
-    adsbygoogle?: unknown[];
+    adsbygoogle?: AdsByGoogleQueue;
+    googleAdSenseScriptLoaded?: boolean;
   }
 }
+
+const MIN_AD_WIDTH = 120;
+const MAX_REQUEST_ATTEMPTS = 8;
+const REQUEST_RETRY_DELAY_MS = 250;
 
 type AdUnitProps = {
   slot: string;
@@ -31,7 +42,13 @@ export default function AdUnit({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const adRef = useRef<HTMLModElement | null>(null);
   const requestedRef = useRef(false);
+  const attemptsRef = useRef(0);
   const adSenseEnabled = isGoogleAdSenseEnabled(client, slot);
+
+  useEffect(() => {
+    requestedRef.current = false;
+    attemptsRef.current = 0;
+  }, [client, slot]);
 
   useEffect(() => {
     if (!adSenseEnabled || requestedRef.current) {
@@ -45,6 +62,56 @@ export default function AdUnit({
     }
 
     let animationFrameId: number | null = null;
+    let retryTimeoutId: number | null = null;
+
+    const clearRetryTimeout = () => {
+      if (retryTimeoutId !== null) {
+        window.clearTimeout(retryTimeoutId);
+        retryTimeoutId = null;
+      }
+    };
+
+    const isScriptReady = () =>
+      window.googleAdSenseScriptLoaded === true ||
+      document.querySelector(
+        'script[data-google-ad-sense-script="true"][data-loaded="true"]',
+      ) !== null;
+
+    const isLayoutReady = () => {
+      const containerStyle = window.getComputedStyle(containerElement);
+      const adStyle = window.getComputedStyle(adElement);
+      const containerWidth = Math.floor(
+        containerElement.getBoundingClientRect().width,
+      );
+      const adWidth = Math.floor(adElement.getBoundingClientRect().width);
+
+      return (
+        containerElement.isConnected &&
+        adElement.isConnected &&
+        containerStyle.display !== "none" &&
+        containerStyle.visibility !== "hidden" &&
+        adStyle.display !== "none" &&
+        adStyle.visibility !== "hidden" &&
+        containerWidth >= MIN_AD_WIDTH &&
+        adWidth >= MIN_AD_WIDTH
+      );
+    };
+
+    const scheduleRetry = () => {
+      if (
+        requestedRef.current ||
+        retryTimeoutId !== null ||
+        attemptsRef.current >= MAX_REQUEST_ATTEMPTS
+      ) {
+        return;
+      }
+
+      retryTimeoutId = window.setTimeout(() => {
+        retryTimeoutId = null;
+        scheduleRequest();
+      }, REQUEST_RETRY_DELAY_MS);
+    };
+
     const resizeObserver = new ResizeObserver(() => {
       scheduleRequest();
     });
@@ -54,23 +121,23 @@ export default function AdUnit({
         return;
       }
 
-      const { width } = containerElement.getBoundingClientRect();
-      const computedStyle = window.getComputedStyle(containerElement);
-      const isVisible =
-        computedStyle.display !== "none" &&
-        computedStyle.visibility !== "hidden" &&
-        width >= 120;
-
-      if (!isVisible) {
+      if (!isScriptReady() || !isLayoutReady()) {
         return;
       }
+
+      attemptsRef.current += 1;
 
       try {
         window.adsbygoogle = window.adsbygoogle || [];
         window.adsbygoogle.push({});
         requestedRef.current = true;
+        clearRetryTimeout();
         resizeObserver.disconnect();
       } catch (error) {
+        scheduleRetry();
+        if (attemptsRef.current < MAX_REQUEST_ATTEMPTS) {
+          return;
+        }
         console.error("Failed to initialize Google AdSense ad unit.", error);
       }
     };
@@ -86,19 +153,23 @@ export default function AdUnit({
     };
 
     resizeObserver.observe(containerElement);
+    resizeObserver.observe(adElement);
     window.addEventListener(GOOGLE_ADSENSE_READY_EVENT, scheduleRequest);
     window.addEventListener("load", scheduleRequest);
+    window.addEventListener("resize", scheduleRequest);
     scheduleRequest();
 
     return () => {
       if (animationFrameId !== null) {
         window.cancelAnimationFrame(animationFrameId);
       }
+      clearRetryTimeout();
       resizeObserver.disconnect();
       window.removeEventListener(GOOGLE_ADSENSE_READY_EVENT, scheduleRequest);
       window.removeEventListener("load", scheduleRequest);
+      window.removeEventListener("resize", scheduleRequest);
     };
-  }, [adSenseEnabled, slot]);
+  }, [adSenseEnabled, client, slot]);
 
   if (!adSenseEnabled) {
     if (process.env.NODE_ENV === "production") {
@@ -122,14 +193,14 @@ export default function AdUnit({
     <div
       ref={containerRef}
       className={clsx(
-        "min-h-[120px] overflow-hidden rounded-lg border border-gray-200 bg-white/80",
+        "min-h-[120px] w-full overflow-hidden rounded-lg border border-gray-200 bg-white/80",
         className,
       )}
     >
       <ins
         ref={adRef}
-        className="adsbygoogle block"
-        style={{ display: "block" }}
+        className="adsbygoogle block w-full"
+        style={{ display: "block", width: "100%" }}
         data-ad-client={client}
         data-ad-format="auto"
         data-ad-slot={slot}
