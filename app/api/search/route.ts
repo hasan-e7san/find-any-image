@@ -5,30 +5,36 @@ import prisma from "@/lib/db";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
+type SessionUserWithId = {
+  id: string;
+};
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const query = searchParams.get("q");
-  const page = parseInt(searchParams.get("page") || "1");
+  const rawPage = Number.parseInt(searchParams.get("page") || "1", 10);
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
 
   if (!query || query.length < 2) {
     return NextResponse.json({ error: "Invalid query" }, { status: 400 });
   }
 
   try {
-    const results = await searchImages(query, page);
+    const searchResponse = await searchImages(query, page);
     
     // Save history if logged in
     const session = await getServerSession(authOptions);
-    if (session?.user && (session.user as any).id) {
+    const user = session?.user as SessionUserWithId | undefined;
+    if (page === 1 && user?.id) {
       await prisma.searchHistory.create({
         data: {
-          userId: (session.user as any).id,
+          userId: user.id,
           query: query,
         }
       });
     }
 
-    return NextResponse.json({ query, page, results });
+    return NextResponse.json({ query, ...searchResponse });
   } catch (error) {
     console.error("Search API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -1,10 +1,12 @@
 // components/ImageModal.tsx
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import clsx from "clsx";
 import { X, ExternalLink, Download, Heart, HeartOff } from "lucide-react";
 import { ImageResult } from "@/lib/search";
 import { useSession } from "next-auth/react";
+import { useI18n } from "./LanguageProvider";
 
 interface ImageModalProps {
   image: ImageResult | null;
@@ -14,10 +16,11 @@ interface ImageModalProps {
 }
 
 export default function ImageModal({ image, onClose, isFavorite, onToggleFavorite }: ImageModalProps) {
-  if (!image) return null;
-
   const { data: session } = useSession();
-  const [loading, setLoading] = useState(false);
+  const { dir, t } = useI18n();
+  const isRtl = dir === "rtl";
+
+  if (!image) return null;
 
   const handleDownload = () => {
     window.open(image.originalImageUrl, "_blank");
@@ -25,7 +28,7 @@ export default function ImageModal({ image, onClose, isFavorite, onToggleFavorit
 
   const handleToggleFavorite = async () => {
     if (!session) {
-      alert("Please login to save favorites");
+      alert(t.imageModal.loginRequired);
       return;
     }
     if (onToggleFavorite) {
@@ -38,7 +41,10 @@ export default function ImageModal({ image, onClose, isFavorite, onToggleFavorit
       <div className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+          className={clsx(
+            "absolute top-4 z-10 rounded-full bg-white p-2 shadow-lg transition-colors hover:bg-gray-100",
+            isRtl ? "left-4" : "right-4",
+          )}
         >
           <X size={20} />
         </button>
@@ -51,10 +57,17 @@ export default function ImageModal({ image, onClose, isFavorite, onToggleFavorit
           />
         </div>
 
-        <div className="w-full md:w-80 p-6 flex flex-col justify-between bg-white border-l border-gray-100">
+        <div
+          className={clsx(
+            "flex w-full flex-col justify-between bg-white p-6 md:w-80",
+            isRtl ? "border-t border-gray-100 md:border-r md:border-t-0" : "border-t border-gray-100 md:border-l md:border-t-0",
+          )}
+        >
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-2 leading-tight">{image.title}</h2>
-            <p className="text-sm text-gray-500 mb-6">Source: {image.sourceDomain}</p>
+            <p className="mb-6 text-sm text-gray-500">
+              {t.imageModal.source}: {image.sourceDomain}
+            </p>
 
             <div className="space-y-3">
               <a
@@ -63,15 +76,15 @@ export default function ImageModal({ image, onClose, isFavorite, onToggleFavorit
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
               >
-                <ExternalLink size={16} className="mr-2" />
-                Visit Page
+                <ExternalLink size={16} className={clsx(isRtl ? "ml-2" : "mr-2")} />
+                {t.imageModal.visitPage}
               </a>
               <button
                 onClick={handleDownload}
                 className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
               >
-                <Download size={16} className="mr-2" />
-                Original Image
+                <Download size={16} className={clsx(isRtl ? "ml-2" : "mr-2")} />
+                {t.imageModal.originalImage}
               </button>
             </div>
           </div>
@@ -87,13 +100,13 @@ export default function ImageModal({ image, onClose, isFavorite, onToggleFavorit
             >
               {isFavorite ? (
                 <>
-                  <HeartOff size={18} className="mr-2" />
-                  Remove from Favorites
+                  <HeartOff size={18} className={clsx(isRtl ? "ml-2" : "mr-2")} />
+                  {t.imageModal.removeFromFavorites}
                 </>
               ) : (
                 <>
-                  <Heart size={18} className="mr-2" />
-                  Save to Favorites
+                  <Heart size={18} className={clsx(isRtl ? "ml-2" : "mr-2")} />
+                  {t.imageModal.saveToFavorites}
                 </>
               )}
             </button>

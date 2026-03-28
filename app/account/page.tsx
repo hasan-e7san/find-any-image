@@ -1,30 +1,31 @@
 // app/account/page.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useEffectEvent, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { User, History, LogOut, Search } from "lucide-react";
 import Link from "next/link";
+import { useI18n } from "@/components/LanguageProvider";
+import { formatDate, formatTime } from "@/lib/i18n";
+
+type SearchHistoryItem = {
+  id: string;
+  query: string;
+  createdAt: string;
+};
 
 export default function AccountPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<SearchHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { locale, t } = useI18n();
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    } else if (status === "authenticated") {
-      fetchHistory();
-    }
-  }, [status]);
-
-  const fetchHistory = async () => {
+  const fetchHistory = useEffectEvent(async () => {
     try {
       const response = await fetch("/api/history");
-      const data = await response.json();
+      const data = (await response.json()) as SearchHistoryItem[];
       if (Array.isArray(data)) {
         setHistory(data);
       }
@@ -33,10 +34,18 @@ export default function AccountPage() {
     } finally {
       setLoading(false);
     }
-  };
+  });
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    } else if (status === "authenticated") {
+      void fetchHistory();
+    }
+  }, [router, status]);
 
   if (status === "loading" || loading) {
-    return <div className="p-20 text-center">Loading account details...</div>;
+    return <div className="p-20 text-center">{t.accountPage.loading}</div>;
   }
 
   return (
@@ -59,14 +68,14 @@ export default function AccountPage() {
                 className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
               >
                 <Search size={18} className="text-gray-400" />
-                <span>My Favorites</span>
+                <span>{t.accountPage.myFavorites}</span>
               </Link>
               <button 
                 onClick={() => signOut()}
                 className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
               >
                 <LogOut size={18} />
-                <span>Logout</span>
+                <span>{t.accountPage.logout}</span>
               </button>
             </div>
           </div>
@@ -79,12 +88,12 @@ export default function AccountPage() {
               <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
                 <History size={20} />
               </div>
-              <h2 className="text-xl font-bold">Search History</h2>
+              <h2 className="text-xl font-bold">{t.accountPage.searchHistory}</h2>
             </div>
 
             {history.length === 0 ? (
               <div className="bg-gray-50 rounded-xl p-10 text-center text-gray-500">
-                You haven't searched for anything yet.
+                {t.accountPage.emptyHistory}
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
@@ -102,7 +111,7 @@ export default function AccountPage() {
                           {item.query}
                         </Link>
                         <p className="text-xs text-gray-400">
-                          {new Date(item.createdAt).toLocaleDateString()} {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {formatDate(locale, item.createdAt)} {formatTime(locale, item.createdAt)}
                         </p>
                       </div>
                     </div>
@@ -110,7 +119,7 @@ export default function AccountPage() {
                       href={`/search?q=${encodeURIComponent(item.query)}`}
                       className="text-sm font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      Search again
+                      {t.accountPage.searchAgain}
                     </Link>
                   </div>
                 ))}

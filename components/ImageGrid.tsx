@@ -4,6 +4,7 @@
 import React from "react";
 import ImageCard from "./ImageCard";
 import { ImageResult } from "@/lib/search";
+import { useI18n } from "./LanguageProvider";
 
 interface ImageGridProps {
   images: ImageResult[];
@@ -12,6 +13,8 @@ interface ImageGridProps {
 }
 
 export default function ImageGrid({ images, onImageClick, loading }: ImageGridProps) {
+  const { t } = useI18n();
+
   if (loading) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse">
@@ -25,7 +28,7 @@ export default function ImageGrid({ images, onImageClick, loading }: ImageGridPr
   if (images.length === 0) {
     return (
       <div className="text-center py-20">
-        <p className="text-gray-500 text-lg">No images found. Try a different search term.</p>
+        <p className="text-gray-500 text-lg">{t.imageGrid.empty}</p>
       </div>
     );
   }

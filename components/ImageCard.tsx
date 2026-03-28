@@ -2,7 +2,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { ImageResult } from "@/lib/search";
 
 interface ImageCardProps {

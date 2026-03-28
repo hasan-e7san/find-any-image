@@ -1,9 +1,11 @@
 // components/SearchInput.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import clsx from "clsx";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useI18n } from "./LanguageProvider";
 
 interface SearchInputProps {
   initialValue?: string;
@@ -14,6 +16,12 @@ interface SearchInputProps {
 export default function SearchInput({ initialValue = "", onSearch, className = "" }: SearchInputProps) {
   const [query, setQuery] = useState(initialValue);
   const router = useRouter();
+  const { dir, t } = useI18n();
+  const isRtl = dir === "rtl";
+
+  useEffect(() => {
+    setQuery(initialValue);
+  }, [initialValue]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,22 +36,32 @@ export default function SearchInput({ initialValue = "", onSearch, className = "
   };
 
   return (
-    <form onSubmit={handleSubmit} className={`relative flex items-center w-full max-w-2xl ${className}`}>
+    <form
+      onSubmit={handleSubmit}
+      dir={dir}
+      className={`relative flex items-center w-full max-w-2xl ${className}`}
+    >
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search for images..."
-        className="w-full px-4 py-2 pl-10 bg-white border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+        placeholder={t.searchInput.placeholder}
+        className={clsx(
+          "w-full rounded-full border border-gray-300 bg-white px-4 py-2 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500",
+          isRtl ? "pr-10 pl-24 text-right" : "pl-10 pr-24 text-left",
+        )}
       />
-      <div className="absolute left-3 text-gray-400">
+      <div className={clsx("absolute text-gray-400", isRtl ? "right-3" : "left-3")}>
         <Search size={18} />
       </div>
       <button
         type="submit"
-        className="absolute right-2 px-4 py-1 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors text-sm font-medium"
+        className={clsx(
+          "absolute rounded-full bg-blue-600 px-4 py-1 text-sm font-medium text-white transition-colors hover:bg-blue-700",
+          isRtl ? "left-2" : "right-2",
+        )}
       >
-        Search
+        {t.searchInput.submit}
       </button>
     </form>
   );

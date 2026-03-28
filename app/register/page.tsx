@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { UserPlus } from "lucide-react";
 import { signIn } from "next-auth/react";
+import { useI18n } from "@/components/LanguageProvider";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -13,7 +13,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const { t } = useI18n();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +30,7 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Registration failed");
+        setError(data.error || t.registerPage.registrationFailed);
       } else {
         // Auto sign in after registration
         await signIn("credentials", {
@@ -39,8 +39,8 @@ export default function RegisterPage() {
           callbackUrl: "/",
         });
       }
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
+    } catch {
+      setError(t.registerPage.unknownError);
     } finally {
       setLoading(false);
     }
@@ -54,7 +54,7 @@ export default function RegisterPage() {
             <UserPlus size={24} />
           </div>
         </div>
-        <h1 className="text-2xl font-bold text-center mb-8">Create an Account</h1>
+        <h1 className="text-2xl font-bold text-center mb-8">{t.registerPage.title}</h1>
         
         {error && (
           <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 border border-red-100">
@@ -64,7 +64,7 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t.registerPage.fullName}</label>
             <input
               type="text"
               value={name}
@@ -75,7 +75,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t.registerPage.email}</label>
             <input
               type="email"
               value={email}
@@ -85,7 +85,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t.registerPage.password}</label>
             <input
               type="password"
               value={password}
@@ -100,14 +100,14 @@ export default function RegisterPage() {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
-            {loading ? "Creating account..." : "Register"}
+            {loading ? t.registerPage.loading : t.registerPage.submit}
           </button>
         </form>
 
         <p className="text-center mt-8 text-gray-500 text-sm">
-          Already have an account?{" "}
+          {t.registerPage.haveAccount}{" "}
           <Link href="/login" className="text-blue-600 font-bold hover:underline">
-            Login here
+            {t.registerPage.loginHere}
           </Link>
         </p>
       </div>

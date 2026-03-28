@@ -1,4 +1,4 @@
-# ImageSearch Website
+# Find Any Image Website
 
 A powerful image search website built with Next.js, TypeScript, Tailwind CSS, NextAuth, SQLite, and Prisma.
 
