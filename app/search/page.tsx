@@ -4,10 +4,12 @@
 import React, { Suspense, useEffect, useEffectEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import AdUnit from "@/components/AdUnit";
 import ImageGrid from "@/components/ImageGrid";
 import ImageModal from "@/components/ImageModal";
 import { useI18n } from "@/components/LanguageProvider";
 import { formatNumber } from "@/lib/i18n";
+import { GOOGLE_ADSENSE_SEARCH_SLOT } from "@/lib/ads";
 import { ImageResult } from "@/lib/search";
 
 type FavoriteRecord = {
@@ -193,9 +195,10 @@ function SearchContent() {
       {/* Results Ads */}
       <div className="mt-16 w-full flex justify-center">
         <div className="max-w-4xl w-full">
-          <div className="bg-gray-100 border border-gray-200 rounded-lg p-4 text-center text-gray-400 text-sm">
-            {t.searchPage.adUnit}
-          </div>
+          <AdUnit
+            slot={GOOGLE_ADSENSE_SEARCH_SLOT}
+            fallbackTitle={t.searchPage.adUnit}
+          />
         </div>
       </div>
     </div>

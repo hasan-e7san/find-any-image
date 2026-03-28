@@ -1,7 +1,9 @@
 // app/page.tsx
 "use client";
 
+import AdUnit from "@/components/AdUnit";
 import SearchInput from "@/components/SearchInput";
+import { GOOGLE_ADSENSE_HOME_SLOT } from "@/lib/ads";
 import { Search, Shield, Heart } from "lucide-react";
 import { useI18n } from "@/components/LanguageProvider";
 
@@ -29,10 +31,11 @@ export default function Home() {
       {/* Ads Section */}
       <section className="w-full py-10 bg-gray-50 flex justify-center border-b border-gray-100">
         <div className="max-w-4xl w-full px-4">
-          <div className="bg-gray-200 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-500 font-medium">
-            <p>{t.home.adsPlaceholder}</p>
-            <p className="text-xs mt-1">{t.home.adsHint}</p>
-          </div>
+          <AdUnit
+            slot={GOOGLE_ADSENSE_HOME_SLOT}
+            fallbackTitle={t.home.adsPlaceholder}
+            fallbackHint={t.home.adsHint}
+          />
         </div>
       </section>
 
